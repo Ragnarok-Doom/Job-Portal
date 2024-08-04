@@ -1,18 +1,24 @@
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
-    firstName: {type: String, required: true},
-    lastName: {type: String, required: true},
-    email: {type: String, required: true},
-    contact: {type: Number, required: true},
-    headline: {type: String, required: true},
-    interest: {type: String, required: true},
-    qualification: {type: String, required: true},
-    course: {type: String, required: true},
-    percentage: {type: String, required: true},
-    position: {type: String, required: true},
-    country: {type: String, required: true},
-    state: {type: String, required: true},
+    _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    photo: { type: String, default: '' },
+    firstName: {type: String},
+    lastName: {type: String},
+    email: {type: String},
+    contact: {type: Number},
+    headline: {type: String},
+    description: { type: String, default: '' },
+    skills: { type: String, default: '' },
+    interest: {type: String},
+    qualification: {type: String},
+    course: {type: String},
+    percentage: {type: String},
+    position: {type: String},
+    city: { type: String, default: '' },
+    state: {type: String},
+    country: {type: String},
+    college: {type: String},
     createdAt: {type: Date, default: Date.now}
 })
 

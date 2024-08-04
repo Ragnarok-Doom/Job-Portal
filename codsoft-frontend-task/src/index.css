@@ -12,3 +12,10 @@ h1{
 .jobs-list::-webkit-scrollbar{
     display: none;
 }
+.job-filters h2{
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    -webkit-text-stroke: 3px green;
+    color: transparent;
+}

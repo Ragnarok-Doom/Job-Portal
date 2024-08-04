@@ -9,25 +9,61 @@ import youImg from './assets/youtube.png'
 import logoImg from './assets/shirt.png'
 import about1 from './assets/a.jpg'
 import about2 from './assets/c.png'
-// import about3 from './assets/d.jpeg'
 import service1 from './assets/politician.png'
 import service2 from './assets/part-time.png'
 import service3 from './assets/ethics.png'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'
 import { MdOutlineEmail } from "react-icons/md";
-import { FaPhoneAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaRegFileExcel } from "react-icons/fa";
 import { AiOutlineLoading } from "react-icons/ai";
 import { toast } from 'react-toastify';
+import { IoMenu } from "react-icons/io5";
 
 
 function LandingPage() {
 
     const navigate = useNavigate()
     const [openIndex, setOpenIndex] = useState(null);
-    // const Register = Cookies.get('Register')
     const Hirejob = Cookies.get('HireJob')
     const Candi = Cookies.get('Candi')
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        message: '',
+        contact: ''
+    })
+
+    const handleChange = e => {
+        setFormData({
+            ...FormData,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // if (validate()) {
+            toast.success("Your message was sent successfully!");
+            setFormData({
+                name: '',
+                email: '',
+                message: '',
+                contact: ''
+            });
+        // }
+    };
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
+    const closeMenu = () => {
+        setIsMenuOpen(false);
+    };
+
     
     const handleJobPost = () => {
         if(Hirejob){
@@ -87,12 +123,21 @@ function LandingPage() {
 
   return (
     <div className='w-full h-full relative'>
+        <div className={`menubar absolute w-full h-full bg-white flex flex-col gap-6 z-[1000]  ${isMenuOpen ? 'block' : 'hidden'}`}>
+            <div className=' flex flex-col gap-6 ml-auto text-right p-5'>
+                <FaRegFileExcel className=' ml-auto cursor-pointer' onClick={toggleMenu} />
+                <a href='#about-us' className=' text-[25px] hover:text-green-500'  onClick={closeMenu}>About</a>
+                <a href='#service' className=' text-[25px] hover:text-green-500'  onClick={closeMenu}>Service</a>
+                <a href='#contact' className=' text-[25px] hover:text-green-500'  onClick={closeMenu}>Contact</a>
+            </div>
+        </div>
         <header className='w-full h-[10vh] flex px-[20px] justify-between items-center z-50 py-4 relative'>
             <div className='flex gap-5 items-center'>
                 <img src={logoImg} alt='img' className=' cursor-pointer' />
                 <h1 className=' text-4xl font-mono font-black cursor-pointer'>Horcrux</h1>
             </div>
-            <nav className='flex gap-8 items-center'>
+            <div className=' absolute top-0 right-0 sm:hidden' onClick={toggleMenu}><IoMenu className=' cursor-pointer text-[40px]' /></div>
+            <nav className='sm:flex gap-8 items-center hidden relative'>
                 <a href='#about-us'>About</a>
                 <a href='#service'>Service</a>
                 <a href='#contact'>Contact</a>
@@ -110,117 +155,137 @@ function LandingPage() {
                 <img src={youImg} />
                 <img src={linkImg} />
             </div>
-            <div className='content absolute flex justify-between top-[10%] left-0 px-[100px]'>
-                <p className=' w-[20%] text-right'>Welcome to <span className='text-[20px] text-[#5ac77f] font-black'>Horcrux</span>, the ultimate destination for job seekers and employers to connect and thrive. Our platform is designed to streamline your job search experience with user-friendly features, a vast database of job listings, and personalized recommendations.</p>
-                <p className='w-[20%]'>Employers can effortlessly post vacancies, track applications, and find the perfect candidates to join their team. Whether you're looking for your first job, seeking a career change, or aiming to hire top talent, Horcrux is here to support your journey every step of the way. Join us today and take the next step toward a successful future!</p>
+            <div className='content absolute flex justify-around md:justify-between top-[10%] left-0 px-[10px] md:px-[100px]'>
+                <p className=' w-[20%] text-right'>Welcome to <span className='text-[20px] text-[#5ac77f] font-black'>Horcrux</span>, the ultimate destination for job seekers and employers to connect and thrive. Our platform is designed to streamline your job search experience with user-friendly features</p>
+                <p className='w-[20%]'>Employers can effortlessly post vacancies, track applications, and find the perfect candidates to join their team. Whether you're looking for your first job, seeking a career change, or aiming to hire top talent</p>
             </div>
             <div className='join absolute bottom-[15px] flex gap-5 left-[15px]'>
                 <button className='bg-[#bde55e] border-[#5ac77f] z-10 hover:text-white' onClick={() => navigate('/login')}><span>Login</span></button>
                 <button className='bg-[#5ac77f] border-[#bde55e] text-white z-10' onClick={() => navigate('/register')}><span>Sign Up</span></button>
             </div>
         </section>
-        {/* ABOUT US */}
+        
         <section id='about-us' className='about-us w-full h-fit flex flex-col relative'>
-            <div className='flex relative bg-green-400 w-full h-[450px] justify-center items-center'>
-                <div className='w-[50%]'>
+            <div className='flex relative bg-green-400 flex-col-reverse md:flex-row w-full h-fit justify-center items-center'>
+                <div className='w-full md:w-[50%]'>
                     <p className='p-16 text-white'>At Horcrux, we are committed to bridging the gap between talented job seekers and dynamic employers. Founded on the principles of innovation, integrity, and inclusivity, our mission is to empower individuals to achieve their career aspirations while helping businesses find the right talent to drive their success.</p>
                 </div>
-                <div className='w-[50%] h-full overflow-hidden object-cover'>
-                    <img src={about2} className='w-full' />
+                <div className='w-full md:w-[50%] relative h-full overflow-hidden'>
+                    <img src={about2} className='w-full h-full object-cover mt-5 md:mt-0' />
                 </div>
             </div>
-            <div className='flex  relativew-full h-[450px]'>
-                <div className='w-[20%] bg-green-100 relative flex justify-center items-center p-0'><span className=''>About Us</span></div>
-                <div className='w-[40%] h-full flex items-center p-16'>
+            <div className='flex  relative w-full h-fit'>
+                <div className='w-[20%] bg-green-100 relative md:flex justify-center items-center p-0 hidden sm:block'>
+                    <span className=' text-md'>About Us</span></div>
+                <div className='w-full md:w-[40%] h-full flex items-center p-16'>
                     <p>Horcrux was established with a vision to revolutionize the job market by providing a seamless and efficient platform for employment opportunities. Recognizing the challenges faced by both job seekers and employers, we set out to create a comprehensive solution that addresses the unique needs of both parties.</p>
                 </div>
-                <div className='w-[40%] bg-green-700'></div>
+                <div className='w-[40%] bg-green-700 hidden md:block'></div>
             </div>
-            <div className='flex  relativew-full h-[200px]'>
-                <div className='w-[60%] h-full overflow-hidden relative'>
-                    <img src={about1} className='w-full relative top-[-250px]' />
+            <div className='flex relative w-full h-[200px]'>
+                <div className='w-[60%] h-full overflow-hidden relative hidden sm:block'>
+                    <img src={about1} className='w-full relative md:top-[-250px]' />
                 </div>  
-                <div className='w-[40%] h-full flex items-center p-5'>
-                    <p className='text-[13px]'>We are dedicated to supporting you in every step of your career journey. Whether you're searching for your next job or looking to hire exceptional talent, Horcrux provides the tools, resources, and support you need to succeed. Join our community today and discover endless possibilities for growth and success.</p>
+                <div className='w-full md:w-[40%] h-full flex items-center p-5'>
+                    <p className=' sm:text-[15px] px-9 my-3 text-md'>We are dedicated to supporting you in every step of your career journey. Whether you're searching for your next job or looking to hire exceptional talent, Horcrux provides the tools, resources, and support you need to succeed. Join our community today and discover endless possibilities for growth and success.</p>
                 </div>
             </div>
         </section>
+
         <section id='service' className='service relative w-full h-fit'>
-            <div className='w-full flex relative'>
-                <div className='w-[50%] h-[200px]'></div>
-                <div className='w-[50%] h-[200px] bg-green-700 rounded-bl-[999px] flex justify-center items-center text-6xl font-black text-white'>Service</div>
+            <div className='w-full flex flex-wrap'>
+                <div className='w-full lg:w-[50%] h-[200px]'></div>
+                <div className='w-full lg:w-[50%] h-[200px] bg-green-700 rounded-bl-[999px] flex justify-center items-center text-4xl lg:text-6xl font-black text-white'>
+                Service
+                </div>
             </div>
-            <div className='services flex justify-center items-center gap-[50px] py-5'>
-                <div className='bg-white w-[25%] flex flex-col p-10 items-center justify-center gap-4 rounded-[50px]'>
-                    <img src={service1} />
-                    <h2 className=' font-black'>Job Seeker</h2>
-                    <p>Extensive Job Listings: Access a diverse range of job opportunities across various industries and locations.Personalized Job Recommendations: Receive tailored job suggestions based on your profile, experience, and preferences.  Create professional resumes with our easy-to-use templates and tools.</p>
+            <div className='services flex flex-wrap justify-center items-center gap-4 lg:gap-[50px] py-5'>
+                <div className='bg-white w-[90%] sm:w-[60%] md:w-[40%] lg:w-[25%] flex flex-col p-6 md:p-10 items-center justify-center gap-4 rounded-[20px] lg:rounded-[50px]'>
+                <img src={service1} className='w-20 h-20 md:w-32 md:h-32' />
+                <h2 className='font-black text-xl md:text-2xl'>Job Seeker</h2>
+                <p className='text-center text-sm md:text-base'>Extensive Job Listings: Access a diverse range of job opportunities across various industries and locations. Personalized Job Recommendations: Receive tailored job suggestions based on your profile, experience, and preferences. Create professional resumes with our easy-to-use templates and tools.</p>
                 </div>
-                <div className='bg-white w-[25%] flex flex-col p-10 items-center justify-center gap-4 rounded-[50px]'>
-                    <img src={service2} />
-                    <h2 className=' font-black'>Employer Service</h2>
-                    <p>Effortlessly post job vacancies and reach a vast pool of qualified candidates. Streamline your hiring process with our integrated ATS, allowing you to manage applications and communicate with candidates effectively. Use advanced search filters to find the best candidates based on skills, experience, and location.</p>
+                <div className='bg-white w-[90%] sm:w-[60%] md:w-[40%] lg:w-[25%] flex flex-col p-6 md:p-10 items-center justify-center gap-4 rounded-[20px] lg:rounded-[50px]'>
+                <img src={service2} className='w-20 h-20 md:w-32 md:h-32' />
+                <h2 className='font-black text-xl md:text-2xl'>Employer Service</h2>
+                <p className='text-center text-sm md:text-base'>Effortlessly post job vacancies and reach a vast pool of qualified candidates. Streamline your hiring process with our integrated ATS, allowing you to manage applications and communicate with candidates effectively. Use advanced search filters to find the best candidates based on skills, experience, and location.</p>
                 </div>
-                <div className='w-[25%] flex flex-col p-10 items-center justify-center gap-4 rounded-[50px]'>
-                    <img src={service3} />
-                    <h2 className=' font-black'>Additional Services</h2>
-                    <p>Unlock exclusive features and benefits with our premium membership plans. Stay informed about new job openings and opportunities with customizable job alerts. Access resources and tools to help you prepare for interviews and succeed in landing your desired job. Connect with industry professionals </p>
+                <div className='bg-white w-[90%] sm:w-[60%] md:w-[40%] lg:w-[25%] flex flex-col p-6 md:p-10 items-center justify-center gap-4 rounded-[20px] lg:rounded-[50px]'>
+                <img src={service3} className='w-20 h-20 md:w-32 md:h-32' />
+                <h2 className='font-black text-xl md:text-2xl'>Additional Services</h2>
+                <p className='text-center text-sm md:text-base'>Unlock exclusive features and benefits with our premium membership plans. Stay informed about new job openings and opportunities with customizable job alerts. Access resources and tools to help you prepare for interviews and succeed in landing your desired job. Connect with industry professionals</p>
                 </div>
             </div>
         </section>
-        <section id='contact' className='contact w-full h-fit p-5 flex'>
-            <div className='w-[50%] flex flex-col gap-[10px] justify-center items-center'>
+
+
+        <section id='contact' className='contact w-full h-fit p-5 flex flex-wrap'>
+            <div className='w-full lg:w-[50%] flex flex-col gap-[10px] justify-center items-center mb-6 lg:mb-0'>
                 <div className='flex flex-col gap-[10px]'>
-                    <h1>Points of contacts</h1>
-                    <h4 className='font-bold'>U.S. TUNE</h4>
-                    <span>11350 Borsdam, Rd. Ep110, Hunt Valley, MD101 Mc Comick</span>
-                    <h4 className=' mt-5 font-bold'>Billing Inquries</h4>
-                    <span>(855) 57876444418</span>
-                    <h4 className=' mt-5 font-bold'>Information & Sales</h4>
-                    <span className='text-blue-500'>partemsasd@gmail.com</span>
-                    <h4 className=' mt-5 font-bold'>Support</h4>
-                    <span className='text-blue-500'>supposa@service</span>
-                    <h4 className=' mt-5 font-bold'>Verification of Employement</h4>
-                    <span className='text-blue-500'>voe@asc.co.io.in</span>
-                    <div className='flex flex-col gap-[5px]'>
-                        <h1><b>Additional Office Locationns</b></h1>
-                        <span>Germany</span>
-                        <span>Tostr, 231, Voldemort</span>
-                    </div>
+                <h1>Points of contacts</h1>
+                <h4 className='font-bold'>U.S. TUNE</h4>
+                <span>11350 Borsdam, Rd. Ep110, Hunt Valley, MD101 Mc Comick</span>
+                <h4 className='mt-5 font-bold'>Billing Inquries</h4>
+                <span>(855) 57876444418</span>
+                <h4 className='mt-5 font-bold'>Information & Sales</h4>
+                <span className='text-blue-500'>partemsasd@gmail.com</span>
+                <h4 className='mt-5 font-bold'>Support</h4>
+                <span className='text-blue-500'>supposa@service</span>
+                <h4 className='mt-5 font-bold'>Verification of Employment</h4>
+                <span className='text-blue-500'>voe@asc.co.io.in</span>
+                <div className='flex flex-col gap-[5px]'>
+                    <h1><b>Additional Office Locations</b></h1>
+                    <span>Germany</span>
+                    <span>Tostr, 231, Voldemort</span>
+                </div>
                 </div>
             </div>
-            <div className='w-[50%] flex flex-col justify-center'>
-                <form className='flex flex-col gap-5 justify-center w-ful items-center'>
-                    <h1 className='font-black m-0'>Please Note: All Fields are required</h1>
-                    <div className='inputBx flex flex-col relative w-[60%]'>
-                        <label className='absolute text-[15px] bg-white px-[10px] left-4'>Name</label>
-                        <input type='text' name='name' autoComplete='false' required
-                            pattern="^[A-Za-z]+( [A-Za-z]+)*$" 
-                            className='text-black w-[100%]'
-                        />
-                    </div>
-                    <div className='inputBx flex flex-col relative w-[60%]'>
-                        <label className='absolute text-[15px] bg-white px-[10px] left-4'>Email</label>
-                        <input type='email' name='email' autoComplete='false' required
-                            className='text-black w-[100%]'
-                        />
-                    </div>
-                    <div className='inputBx flex flex-col relative w-[60%]'>
-                        <textarea placeholder='Message' className='border rounded-md p-5'></textarea>
-                    </div>
-                    <div className='inputBx flex flex-col relative w-[60%]'>
-                        <label className='absolute text-[15px] bg-white px-[10px] left-4'>Contact</label>
-                        <input type='text' name='name' autoComplete='false' required
-                            pattern="^[0-9]" 
-                            className='text-black w-[100%]'
-                        />
-                    </div>
-                    <div className='inputBx flex flex-col relative w-[60%]'>
-                        <button><span>Submit</span></button>
-                    </div>
-                </form>
+            <div className='w-full lg:w-[50%] flex flex-col justify-center'>
+            <form className='flex flex-col gap-5 justify-center w-full items-center' onSubmit={handleSubmit}>
+                <h1 className='font-black m-0'>Please Note: All Fields are required</h1>
+                <div className='inputBx flex flex-col relative w-[80%] sm:w-[70%] md:w-[60%]'>
+                    <label className='absolute text-[15px] bg-white px-[10px] left-4'>Name</label>
+                    <input type='text' name='name' autoComplete='false' required
+                    value={formData.name}
+                    onChange={handleChange}
+                    pattern="^[A-Za-z]+( [A-Za-z]+)*$" 
+                    title='Name should contain only alphabets'
+                    className='text-black w-full border rounded-md p-2'
+                    />
+                    {errors.name && (<p className=' text-sm text-red-600'>{errors.name}</p>)}
+                </div>
+                <div className='inputBx flex flex-col relative w-[80%] sm:w-[70%] md:w-[60%]'>
+                    <label className='absolute text-[15px] bg-white px-[10px] left-4'>Email</label>
+                    <input type='email' name='email' autoComplete='false' required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className='text-black w-full border rounded-md p-2'
+                    />
+                    {errors.email && (<p className=' text-sm text-red-600'>{errors.email}</p>)}
+                </div>
+                <div className='inputBx flex flex-col relative w-[80%] sm:w-[70%] md:w-[60%]'>
+                    <textarea placeholder='Message' name='message' className='border rounded-md p-5 w-full'
+                    value={formData.message} onChange={handleChange}></textarea>
+                    {errors.message && (<p className=' text-sm text-red-600'>{errors.message}</p>)}
+                </div>
+                <div className='inputBx flex flex-col relative w-[80%] sm:w-[70%] md:w-[60%]'>
+                    <label className='absolute text-[15px] bg-white px-[10px] left-4'>Contact</label>
+                    <input type='text' name='contact' autoComplete='false' required maxLength={10}
+                    value={formData.contact}
+                    onChange={handleChange}
+                    pattern="^[0-9]+" 
+                    title='Only Digits allowd'
+                    className='text-black w-full border rounded-md p-2'
+                    />
+                    {errors.contact && (<p className=' text-sm text-red-600'>{errors.contact}</p>)}
+                </div>
+                <div className='inputBx flex flex-col relative w-[80%] sm:w-[70%] md:w-[60%]'>
+                    <button className='bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600' type='submit'><span>Submit</span></button>
+                </div>
+            </form>
             </div>
         </section>
+
         <section>
         <div className="w-[80%] my-10 p-5 mx-auto">
         <h1 className=' text-3xl underline font-black'>Frequently Asked Questions.</h1>
@@ -244,56 +309,57 @@ function LandingPage() {
             ))}
             </div>
         </section>
-        <footer className=' w-full h-fit p-10 flex justify-evenly bg-zinc-100 overflow-hidden'>
-            <div className='w-[20%] flex flex-col items-center'>
-                <div className=' flex flex-col gap-3'>
-                    <h3>Contact / Need Help ?</h3>
-                    <hr className=' w-[90%] h-[2px] bg-gray-500' />
-                    <p className='flex gap-3 items-center'><MdOutlineEmail />Email: support@example.com</p>
-                    <p>If you need any help and feedback for our website feel free to contact us or mail us using provided phone number and email. <b>Note: only for emergency purpose.</b></p>
-                    <p className=' flex gap-3 items-center'><FaPhoneAlt />Phone: +1 (555) 123-4567</p>
+        <footer className='w-full h-fit p-10 flex flex-wrap justify-around bg-zinc-100 overflow-hidden'>
+            <div className='w-full sm:w-[45%] lg:w-[20%] flex flex-col items-center mb-6'>
+                <div className='flex flex-col gap-3'>
+                <h3>Contact / Need Help ?</h3>
+                <hr className='w-[90%] h-[2px] bg-gray-500' />
+                <p className='flex gap-3 items-center'><MdOutlineEmail />Email: support@example.com</p>
+                <p>If you need any help and feedback for our website feel free to contact us or mail us using provided phone number and email. <b>Note: only for emergency purpose.</b></p>
+                <p className='flex gap-3 items-center'><FaPhoneAlt />Phone: +1 (555) 123-4567</p>
                 </div>
             </div>
-            <div className='w-[20%] flex flex-col items-center'>
-                <div className=' w-[90%] flex flex-col gap-3'>
-                    <h3>Quick Links</h3>
-                    <hr className=' w-[90%] h-[2px] bg-gray-500' />
-                    <p className=' cursor-pointer w-fit hover:text-gray-400'>About</p>
-                    <p className=' cursor-pointer w-fit hover:text-gray-400'>Service</p>
-                    <p className=' cursor-pointer w-fit hover:text-gray-400'>Job Post</p>
-                    <p className=' cursor-pointer w-fit hover:text-gray-400'>Job Search</p>
+            <div className='w-full sm:w-[45%] lg:w-[20%] flex flex-col items-center mb-6'>
+                <div className='w-[90%] flex flex-col gap-3'>
+                <h3>Quick Links</h3>
+                <hr className='w-[90%] h-[2px] bg-gray-500' />
+                <p className='cursor-pointer w-fit hover:text-gray-400'>About</p>
+                <p className='cursor-pointer w-fit hover:text-gray-400'>Service</p>
+                <p className='cursor-pointer w-fit hover:text-gray-400'>Job Post</p>
+                <p className='cursor-pointer w-fit hover:text-gray-400'>Job Search</p>
                 </div>
             </div>
-            <div className='w-[20%] flex flex-col justify-center relative items-center '>
-                <img src={logoImg}  className=' w-[35%]'/>
-                <div className=' relative'>
-                    <h1 className=' text-4xl font-mono leading-[1] font-black cursor-pointer relative z-10'>Horcrux</h1>
-                    <AiOutlineLoading className=' w-full h-fit rotate-[-45deg] absolute text-green-400 top-[45%] z-0 left-1/2 translate-x-[-50%]' />
+            <div className='w-full sm:w-[45%] lg:w-[20%] flex flex-col justify-center items-center mb-6'>
+                <img src={logoImg} className='w-[35%]' />
+                <div className='relative'>
+                <h1 className='text-4xl font-mono leading-[1] font-black cursor-pointer relative z-10'>Horcrux</h1>
+                <AiOutlineLoading className='w-full h-fit rotate-[-45deg] absolute text-green-400 top-[45%] z-0 left-1/2 translate-x-[-50%]' />
                 </div>
             </div>
-            <div className='w-[20%] flex flex-col items-center'>
-                <div className=' w-[90%] flex flex-col gap-3'>
-                    <h3>Resources</h3>
-                    <hr className=' w-[90%] h-[2px] bg-gray-500' />
-                    <p className=' cursor-pointer w-fit hover:text-gray-400'>
+            <div className='w-full sm:w-[45%] lg:w-[20%] flex flex-col items-center mb-6'>
+                <div className='w-[90%] flex flex-col gap-3'>
+                <h3>Resources</h3>
+                <hr className='w-[90%] h-[2px] bg-gray-500' />
+                <p className='cursor-pointer w-fit hover:text-gray-400'>
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, nobis vero architecto rerum autem exercitationem nisi maiores distinctio deserunt voluptatem id odio assumenda consequatur corrupti, mini
-                    </p>
+                </p>
                 </div>
             </div>
-            <div className='media w-[20%] flex flex-col items-center'>
-                <div className=' w-[90%] flex flex-col gap-3'>
-                    <h3>Social Media</h3>
-                    <hr className=' w-[90%] h-[2px] bg-gray-500' />
-                    <div className=' flex flex-wrap gap-3'>
-                        <img src={faceImg} />
-                        <img src={instaImg} />
-                        <img src={linkImg} />
-                        <img src={twitImg} />
-                        <img src={youImg} />
-                    </div>
+            <div className='media w-full sm:w-[45%] lg:w-[20%] flex flex-col items-center mb-6'>
+                <div className='w-[90%] flex flex-col gap-3'>
+                <h3>Social Media</h3>
+                <hr className='w-[90%] h-[2px] bg-gray-500' />
+                <div className='flex flex-wrap gap-3'>
+                    <img src={faceImg} alt="Facebook" />
+                    <img src={instaImg} alt="Instagram" />
+                    <img src={linkImg} alt="LinkedIn" />
+                    <img src={twitImg} alt="Twitter" />
+                    <img src={youImg} alt="YouTube" />
+                </div>
                 </div>
             </div>
-        </footer>
+            </footer>
+
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaArrowLeft, FaCity, FaPlus, FaRegBuilding, FaTrash } from 'react-icons/fa'
 import { FaDisplay, FaLocationDot } from 'react-icons/fa6'
 import { IoMdSettings } from 'react-icons/io'
@@ -8,15 +8,99 @@ import { TiInfoLarge } from 'react-icons/ti'
 import profile from './assets/a.jpg'
 import { useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
+import axios from 'axios'
+import { toast } from 'react-toastify';
 
 
 function Settings() {
 
     const navigate = useNavigate()
     const [step, setStep] = useState(1)
-    const handleLogout = () => {
-        navigate('/login')
-        Cookies.remove('authToken')
+    const [userData, setUserData] = useState({});
+    const userId = Cookies.get('registrationId')
+    const [profileImage, setProfileImage] = useState(null);
+    const [rol, setRol] = useState('')
+    const [formData, setFormData] = useState({
+        password: '',
+        confirmPassword: '',
+    })
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const roleResponse = await axios.get(`http://localhost:5000/api/auth/roles/${userId}`);
+                if (roleResponse.status === 200) {
+                    const role = roleResponse.data.userType;
+                    setRol(role)
+                    let dataResponse;
+
+                    if (role === 'RoleJob') {
+                        dataResponse = await axios.get(`http://localhost:5000/api/auth/rolehire/${userId}`);
+                    } else if (role === 'RoleCandi') {
+                        dataResponse = await axios.get(`http://localhost:5000/api/auth/rolecandi/${userId}`);
+                    }
+
+                    if (dataResponse && dataResponse.status === 200) {
+                        setUserData(dataResponse.data);
+                    }
+
+                    const imageUrl = userData.photo ? `http://localhost:5000/${userData.photo}` : profile;
+                    setProfileImage(imageUrl);
+
+                    const imageUrll = userData.companyLogo ? `http://localhost:5000/${userData.companyLogo}` : profile;
+                    setProfileImage(imageUrll);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, [userId]);
+
+    const handleLogout = async () => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/auth/deleteuser/${userId}`);
+            if (response.status === 200) {
+                Cookies.remove('registrationId');
+                toast.success("Account deleted successfully.")
+                navigate('/');
+            } else {
+                console.error('Failed to delete user');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handlePassChange = e => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const handlePassword = async e => {
+        e.preventDefault()
+        const userId = Cookies.get('registrationId')
+    
+        try {
+            if(formData.password == formData.confirmPassword){
+                let response = await axios.post(`http://localhost:5000/api/auth/updatepassword/${userId}`, formData)
+                if(response.status === 200){
+                    setFormData({
+                        password: '',
+                        confirmPassword: ''
+                    })
+                    toast.success('Password Updated Successfully')
+                }
+            } else {
+                toast.error('Confirm Password is not same as Password')
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
   return (
@@ -63,21 +147,22 @@ function Settings() {
                 <div className=' p-4'>
                     <div className=' w-full flex gap-3 flex-wrap mt-5'>
                         <div className=' w-[60px] h-[60px] overflow-hidden rounded-md'>
-                            <img src={profile} alt='' className=' w-full h-full object-cover' />
+                            <img src={profileImage} alt='' className=' w-full h-full object-cover' />
                         </div>
-                        <p><span className=' text-sm'>Name</span><h1 className=' m-0'>Cynthia Christie</h1></p>
+                        <p><span className=' text-sm'>Name</span><h1 className=' m-0'>{userData.firstName} {userData.lastName}</h1></p>
                     </div>
                     <div className=' mt-[3vh]'>
-                        <p>Description <br />Horcrux was established with a vision to revolutionize the job market by providing a seamless and efficient platform for employment opportunities. Recognizing the challenges faced by both job seekers and employers, we set out to create a comprehensive solution that addresses the unique needs of both parties.</p>
+                        <p>Description <br />
+                        {rol === 'RoleJob' ? userData.companyDescription : userData.description}</p>
                     </div>
                     <div className=' mt-[4vh]'>
-                        <p><span className=' font-medium'>Headline</span> : Experienced in React | Node | Express | Mongo</p>
+                        <p><span className=' font-medium'>Headline</span> : {rol === 'RoleJob' ? userData.companyRole : userData.headline}</p>
                     </div>
                     <div className=' mt-[4vh]'>
-                        <p><span className=' font-medium'>Email</span> : patelmanan074@gmail.com</p>
+                        <p><span className=' font-medium'>Email</span> : {rol === 'RoleJob' ? userData.companyEmail : userData.email}</p>
                     </div>
                     <div className=' mt-[4vh]'>
-                        <p><span className=' font-medium'>Contact</span> : +91 8511781612</p>
+                        <p><span className=' font-medium'>Contact</span> : {rol === 'RoleJob' ? userData.companyContact : userData.contact}</p>
                     </div>
                 </div>
             </>
@@ -92,9 +177,9 @@ function Settings() {
             <hr className='' />
             <div className=' px-4'>
                 <div className=' mt-[5vh] flex flex-col gap-4 '>
-                    <p className=' flex items-center gap-3'><FaRegBuilding /> Vadodara</p>
-                    <p className=' flex items-center gap-3'><FaCity /> Gujarat</p>
-                    <p className=' flex items-center gap-3'><IoEarth /> India</p>
+                    <p className=' flex items-center gap-3'><FaRegBuilding /> {rol === 'RoleJob' ? userData.city : userData.city}</p>
+                    <p className=' flex items-center gap-3'><FaCity /> {rol === 'RoleJob' ? userData.state : userData.state}</p>
+                    <p className=' flex items-center gap-3'><IoEarth /> {rol === 'RoleJob' ? userData.country : userData.country}</p>
                 </div>
             </div>
             </>
@@ -109,18 +194,23 @@ function Settings() {
             <hr className='' />
             <div className=' p-4'>
                 <div className=' mt-[5vh] flex flex-col gap-4 '>
-                    <form>
+                    <form onSubmit={handlePassword}>
                         <div className=' flex flex-col gap-2'>
                             <label>New Password</label>
-                            <input type='text' name='new-pass' className=' w-[50%] bg-blue-100 p-3' required />
+                            <input type='password' name='password' value={formData.password} onChange={handlePassChange} className=' w-[50%] bg-blue-100 p-3'
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$"
+                            title="Password must be 8-16 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character."required />
                         </div><br />
                         <div className=' flex flex-col gap-2'>
                             <label>Confirm Password</label>
-                            <input type='text' name='confirm-pass' className=' w-[50%] bg-blue-100 p-3' required />
+                            <input type='password' name='confirmPassword' value={formData.confirmPassword} onChange={handlePassChange} className=' w-[50%] bg-blue-100 p-3'
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$"
+                            title="Password must be 8-16 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character." required />
                         </div>
                         <div className=' mt-[4vh]'>
                             <input type='submit' value='Change' name='submit'
                             className=' bg-green-300 w-[50%] py-3 rounded-md hover:text-white hover:bg-green-400 cursor-pointer'
+
                             />
                         </div>
                     </form>
@@ -164,11 +254,11 @@ function Settings() {
                     className=' justify-center hover:bg-transparent w-[50%] border-black border-[2px] py-3 flex items-center gap-3 hover:border-blue-500 hover:text-blue-500'
                     onClick={() => navigate('/login')}>Login with other Account <FaPlus /></button>
                     <p>Date Joined - 1 / 2 / 2021</p>
-                    <p>Link - horcrux/cynthia14/10254</p>
-                    <p>Email - patelmanan074</p>
-                    <p>Contact - 8511745</p>
+                    <p>Link - horcrux/{userData.firstName}/{userData._id}</p>
+                    <p>Email - {rol === 'RoleJob' ? userData.companyEmail : userData.email}</p>
+                    <p>Contact - {rol === 'RoleJob' ? userData.companyContact : userData.contact}</p>
                 </div>
-                <button className=' mt-5 py-2 px-5 border-[2px] border-black flex items-center gap-3 hover:bg-transparent hover:text-red-500 hover:border-red-500'>Delete Account <FaTrash /></button>
+                <button className=' mt-5 py-2 px-5 border-[2px] border-black flex items-center gap-3 hover:bg-transparent hover:text-red-500 hover:border-red-500' onClick={handleLogout}>Delete Account <FaTrash /></button>
             </div>
             </>
             }
@@ -182,7 +272,7 @@ function Settings() {
                     <p>Are you sure, you want to logout ?</p>
                     <div className=' flex gap-5 mt-5'>
                         <button className=' border-[2px] border-red-600 text-red-600 hover:bg-red-100 py-3 px-12 rounded-[30px]' onClick={() => setStep(1)}>Cancel</button>
-                        <button className=' border-[2px] border-green-600 text-green-600 hover:bg-green-100 py-3 px-12 rounded-[30px]' onClick={handleLogout}>Okay</button>
+                        <button className=' border-[2px] border-green-600 text-green-600 hover:bg-green-100 py-3 px-12 rounded-[30px]' onClick={() => navigate('/')}>Okay</button>
                     </div>
                 </div>
             </div>

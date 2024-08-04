@@ -1,54 +1,114 @@
-import React, { useState } from 'react'
-import profile from '../assets/a.jpg'
-import { FaArrowLeftLong } from "react-icons/fa6";
+import React, { useEffect, useState } from 'react';
+import profile from '../assets/a.jpg';
+import { FaLocationDot } from "react-icons/fa6";
+import { IoMdContact } from 'react-icons/io';
+import Cookies from 'js-cookie';
+import moment from 'moment';
+import 'moment/locale/en-gb';
+import axios from 'axios';
 
-function CandidateProfile({setStep}) {
+function CandidateProfile() {
+    const [profileImage, setProfileImage] = useState(profile); // Default profile image
+    const [formData, setFormData] = useState({
+        photo: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        contact: '',
+        city: '',
+        state: '',
+        country: '',
+        headline: '',
+        description: '',
+        skills: '',
+        qualification: '',
+        percentage: '',
+        position: '',
+        course: '',
+        college: '',
+        interest: '',
+        createdAt: '',
+    });
 
-    const clickCrossJob = () => {
-        setStep(1)
+    const getTimeago = (dateString) => {
+        return moment(dateString).fromNow();
     }
 
-  return (
-    <div className='job-profile w-full h-full overflow-y-scroll'>
-        <div className=' flex justify-end'>
-            <FaArrowLeftLong className=' font-bold text-xl cursor-pointer' onClick={clickCrossJob} />
-        </div>
-        <form>
-            <div className=' w-full  mt-5 flex gap-3'>
-                <div className=' bg-slate-500 w-[180px] h-[180px]'>
-                    <img src={profile} className=' w-full h-full object-cover' />
-                </div>
-                <div className='  flex flex-col justify-between'>
-                    <p>
-                        <h2 className=' text-3xl font-bold'>Cynthia Christie</h2>
-                        <h3 className=' mt-3'>Experienced in React | Node | Tailwind</h3>
-                    </p>
-                    <h4 className=' text-gray-500 mb-0'>Joined 3 weeks ago</h4>
-                </div>
-            </div>
-                <input 
-                    type='file'
-                    className=' mt-2'
-                />
-            <div>
-                <h1>Description</h1>
-                <p><textarea className=' w-full border-black p-3 border-[1px] rounded-md' placeholder='Write about yourself ... like what is your work'></textarea></p>
-                
-                <h1>Qualification</h1>
-                <p>Highest Qualification is Bachelor's in BCA <br /> CGPA - 9.05</p>
+    useEffect(() => {
+        const userId = Cookies.get('registrationId');
 
-                <h1>Contact info</h1>
-                <p>patelmanan1612@gmail.com - 8511781612</p>
-                
-                <h1 className=' my-3'>Location</h1>
-                <p>Vadodara - Gujarat - India</p>
+        if (userId) {
+            axios.get(`http://localhost:5000/api/auth/rolecandi/${userId}`)
+                .then(response => {
+                    const data = response.data;
+                    setFormData({
+                        photo: data.photo || '',
+                        firstName: data.firstName || '',
+                        lastName: data.lastName || '',
+                        email: data.email || '',
+                        contact: data.contact || '',
+                        city: data.city || '',
+                        state: data.state || '',
+                        country: data.country || '',
+                        headline: data.headline || '',
+                        description: data.description || '',
+                        skills: data.skills || '',
+                        qualification: data.qualification || '',
+                        percentage: data.percentage || '',
+                        position: data.position || '',
+                        course: data.course || '',
+                        college: data.college || '',
+                        interest: data.interest || '',
+                        createdAt: data.createdAt || '',
+                    });
+
+                    const imageUrl = data.photo ? `http://localhost:5000/${data.photo}` : profile;
+                    setProfileImage(imageUrl);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    }, [profileImage]);
+
+    return (
+        <div className='job-profile w-full h-full overflow-y-scroll'>
+            <div className='w-full mt-5 flex gap-3'>
+                <div className='bg-slate-500 w-[180px] h-[180px]'>
+                    <img src={profileImage} className='w-full h-full object-cover' alt="Profile" />
+                </div>
+                <div className='flex flex-col justify-between'>
+                    <p>
+                        <h2 className='text-3xl font-bold'>{formData.firstName} {formData.lastName}</h2>
+                        <h3 className='mt-3'>{formData.headline}</h3>
+                    </p>
+                    <h4 className='text-gray-500 mb-0'>Joined {getTimeago(formData.createdAt)}</h4>
+                </div>
             </div>
-            <div className=' mt-5 w-full flex justify-center'>
-                <button className=' border-[2px] border-black py-2 px-5 hover:text-white hover:border-green-600' type='submit'>SAVE CHANGES</button>
+            <div className='flex flex-col gap-7 mt-5'>
+                <div>
+                    <h1 className='my-2'>Description</h1>
+                    <p>{formData.description}</p>
+                </div>
+                <div>
+                    <h1 className='my-2'>Skills</h1>
+                    <p>{formData.skills}</p>
+                </div>
+                <div>
+                    <h1 className='my-2'>Qualification</h1>
+                    <p> {formData.college} <br /> {formData.qualification} <br /> CGPA - {formData.percentage}</p>
+                </div>
+                <div>
+                    <h1 className='my-2 flex items-center gap-2'><span><IoMdContact /></span>Contact info</h1>
+                    <p>{formData.email} - {formData.contact}</p>
+                </div>
+                <div>
+                    <h1 className='my-2 flex items-center gap-2'><span><FaLocationDot /></span>Location</h1>
+                    <p>{formData.city} - {formData.state} - {formData.country}</p>
+                </div>
             </div>
-        </form>
-    </div>
-  )
+        </div>
+    );
 }
 
-export default CandidateProfile
+export default CandidateProfile;

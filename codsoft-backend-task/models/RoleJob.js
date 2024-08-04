@@ -1,21 +1,21 @@
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     companyLogo: {type: String, default: ''},
-    firstName: {type: String, required: true},
-    lastName: {type: String, required: true},
-    companyName: {type: String, required: true},
+    firstName: {type: String},
+    lastName: {type: String},
+    companyName: {type: String},
     companyDescription: {type: String, default: ''},
-    companyRole: {type: String, required: true},
+    companyRole: {type: String},
     companyFounder: {type: String, default: ''},
     companyCEO: {type: String, default: ''},
-    companyEmail: {type: String, required: true, default: ''},
-    companyContact: {type: Number, required: true, default: ''},
-    companyAddress: {type: String, required: true, default: ''},
+    companyEmail: {type: String, default: ''},
+    companyContact: {type: Number, default: ''},
+    companyAddress: {type: String, default: ''},
     city: {type: String, default: ''},
-    country: {type: String, required: true},
-    state: {type: String, required: true},
+    country: {type: String},
+    state: {type: String},
     companyStartedYear: {type: String, default: ''},
     createdAt: {type: Date, default: Date.now}
 })

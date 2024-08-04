@@ -94,7 +94,9 @@ const RegistrationForm = () => {
                 setErrors({});
                 toast.success("Register successful!");
                 navigate('/role');
-                Cookies.set('Register', response.data.userId, { expires: 7 })
+                const registrationId = response.data.userId;
+                Cookies.set('registrationId', registrationId)
+                Cookies.set('Register', registrationId, { expires: 7 })
             }
         } catch (error) {
             console.error(error);

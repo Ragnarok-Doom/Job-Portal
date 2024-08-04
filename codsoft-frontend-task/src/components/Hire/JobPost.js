@@ -4,11 +4,12 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 
-function JobPost() {
+function JobPost({ setCompanyName }) {
   const [formData, setFormData] = useState({
     role: '',
     jobLocation: 'Select',
     timing: 'Select',
+    jobType: 'Select',
     salary: '',
     jobDescription: '',
     qualification: '',
@@ -53,12 +54,13 @@ function JobPost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { role, jobLocation, timing, salary, jobDescription, qualification, requirements, skills } = formData;
+    const { role, jobLocation, timing, salary, jobDescription, qualification, requirements, skills, jobType } = formData;
 
     // Check for blank fields and update errors
     let blankError = {};
     if (isValidInput(role)) blankError.role = 'Role cannot be empty';
     if (isValidInput(jobLocation)) blankError.jobLocation = 'Job Location cannot be empty';
+    if (isValidInput(jobType)) blankError.jobType = 'Job Type cannot be empty';
     if (isValidInput(timing)) blankError.timing = 'Timing cannot be empty';
     if (isValidInput(salary)) blankError.salary = 'Salary cannot be empty';
     if (isValidInput(jobDescription)) blankError.jobDescription = 'Job Description cannot be empty';
@@ -74,15 +76,16 @@ function JobPost() {
         return;
     }
 
-    const userId = Cookies.get('HireJob'); // Get userId from cookie
-
+    const userId = Cookies.get("registrationId"); // Get userId from cookie
+    const companyname = setCompanyName
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/jobpost', { ...formData, userId });
+      const response = await axios.post('http://localhost:5000/api/auth/jobpost', { ...formData, _id: userId, companyname });
       if(response.status === 201){
         setFormData({
           role: '',
           jobLocation: 'Select',
           timing: 'Select',
+          jobType: 'Select',
           salary: '',
           jobDescription: '',
           qualification: '',
@@ -115,6 +118,7 @@ function JobPost() {
                 className='border border-black p-2 rounded-lg' 
                 required 
                 onChange={handleInputChange} 
+                placeholder='ex. Web Developer'
               />
               {errors.role && (<p className=' text-red-600 text-sm'>{errors.role}</p>)}
             </div>
@@ -134,7 +138,7 @@ function JobPost() {
               </select>
               {errors.jobLocation && (<p className=' text-red-600 text-sm'>{errors.jobLocation}</p>)}
             </div>
-            <div className='flex flex-col gap-2 w-[48%]'>
+            <div className='flex flex-col gap-2 w-[31.5%]'>
               <label>Timing for work</label>
               <select 
                 name='timing' 
@@ -151,7 +155,7 @@ function JobPost() {
               </select>
               {errors.timing && (<p className=' text-red-600 text-sm'>{errors.timing}</p>)}
             </div>
-            <div className='flex flex-col gap-2 w-[48%]'>
+            <div className='flex flex-col gap-2 w-[31.5%]'>
               <label>Salary</label>
               <input 
                 type='text' 
@@ -160,8 +164,24 @@ function JobPost() {
                 className='border border-black p-2 rounded-lg' 
                 required 
                 onChange={handleInputChange} 
+                placeholder='ex. Rs. 1,00,000 - Rs. 2,00,000'
               />
               {errors.salary && (<p className=' text-red-600 text-sm'>{errors.salary}</p>)}
+            </div>
+            <div className='flex flex-col gap-2 w-[31.5%]'>
+              <label>Job Type</label>
+              <select 
+                name='jobType' 
+                value={formData.jobType}
+                className='border border-black p-2 rounded-lg' 
+                required 
+                onChange={handleInputChange}
+              >
+                <option value='Select'>Select</option>
+                <option value='Job'>Job</option>
+                <option value='Internship'>Internship</option>
+              </select>
+              {errors.jobType && (<p className=' text-red-600 text-sm'>{errors.jobType}</p>)}
             </div>
             <div className='flex flex-col gap-2 w-[97%]'>
               <label>Job Description</label>
@@ -184,6 +204,7 @@ function JobPost() {
                 rows={3} 
                 required 
                 onChange={handleInputChange}
+                placeholder='ex. Bachelors degree'
               ></textarea>
               {errors.qualification && (<p className=' text-red-600 text-sm'>{errors.qualification}</p>)}
             </div>
@@ -196,6 +217,7 @@ function JobPost() {
                 rows={3} 
                 required 
                 onChange={handleInputChange}
+                placeholder='ex. experience'
               ></textarea>
               {errors.requirements && (<p className=' text-red-600 text-sm'>{errors.requirements}</p>)}
             </div>
@@ -208,6 +230,7 @@ function JobPost() {
                 rows={2} 
                 required 
                 onChange={handleInputChange}
+                placeholder='ex. communication skiils, React, Node - Express'
               ></textarea>
               {errors.skills && (<p className=' text-red-600 text-sm'>{errors.skills}</p>)}
             </div>

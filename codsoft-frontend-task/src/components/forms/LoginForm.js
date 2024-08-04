@@ -3,7 +3,7 @@ import RegistrationForm from './RegistrationForm';
 import ConfirmPasswordForm from './ConfirmPasswordForm';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// import Cookies from 'js-cookie'
+import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';
 
 function LoginForm() {
@@ -15,9 +15,6 @@ function LoginForm() {
         password: '',
     });
     const navigate = useNavigate();
-    // const Register = Cookies.get('Register')
-    // const HireJob = Cookies.get('HireJob')
-    // const Candi = Cookies.get('Candi')
 
     const handleChange = e => {
         setFormData({
@@ -29,7 +26,6 @@ function LoginForm() {
             [e.target.name]: ''
         });
     };
-
     const isValidInput = input => input.trim() !== '';
 
     const isValidEmail = email => {
@@ -43,7 +39,7 @@ function LoginForm() {
     };
 
     const handleLogin = async e => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); 
         const { password, email } = formData;
         const newErrors = {};
         
@@ -65,15 +61,19 @@ function LoginForm() {
         try {
             const response = await axios.post("http://localhost:5000/api/auth/login", formData);
             if (response.status === 200) {
-                const { userType } = response.data;
+                const { userType, userId } = response.data;
+                Cookies.set('registrationId', userId)
                 toast.success("Welcome Back!");
-                if (userType === 'RoleJob') {
+                if (userType === 'RoleHire') {
                     navigate('/dash-hire');
                 } else if (userType === 'RoleCandi') {
                     navigate('/dash-candi');
                 } else if (userType === 'User') {
                     navigate('/role');
                 }
+            }
+            else{
+                toast.alert("error")
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.field) {
@@ -92,6 +92,7 @@ function LoginForm() {
     if (forgot) {
         return <ConfirmPasswordForm />;
     }
+
 
     return (
         <div className='w-screen h-screen flex items-center justify-center'>
